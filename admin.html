@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduVerify - 관리자 페이지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-decorations">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+  </div>
+
+  <main class="app-container admin-wide">
+    <header class="app-header">
+      <div class="logo">EduVerify Admin</div>
+      <h1>교육 이수 현황 관리</h1>
+      <p class="subtitle">이수자 목록 확인 및 모바일 접속 QR 코드를 생성합니다.</p>
+    </header>
+
+    <div class="admin-grid">
+      <!-- Left column: QR Code info -->
+      <section class="card qr-section">
+        <h2>모바일 접속 QR 코드</h2>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">스마트폰으로 스캔하여 교육 화면에 접속할 수 있습니다.</p>
+        
+        <div class="qr-placeholder" id="qr-container">
+          <span style="color: #6b7280; font-size: 0.8rem; display: block; padding-top: 80px;">QR 생성 중...</span>
+        </div>
+
+        <div style="width: 100%; margin-top: 10px;">
+          <div class="input-group">
+            <label>접속 URL</label>
+            <input type="text" id="app-url-input" readonly style="font-size: 0.85rem; padding: 10px; background: rgba(0,0,0,0.2);">
+          </div>
+          <button onclick="window.print()" class="btn btn-secondary" style="width:100%;">이 화면 인쇄 (QR 코드)</button>
+        </div>
+      </section>
+
+      <!-- Right column: Completions table -->
+      <section class="card">
+        <div class="actions-row">
+          <h2>이수 완료자 명단</h2>
+          <div>
+            <button onclick="fetchCompletions()" class="btn btn-secondary" style="display:inline-block; width:auto; margin-right: 8px;">새로고침</button>
+            <a href="/api/download" class="btn btn-primary" style="display:inline-block; width:auto; text-decoration:none; font-size:0.85rem; padding:8px 16px; border-radius:8px;">CSV 다운로드</a>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>성명</th>
+                <th>생년월일</th>
+                <th>이수 일시</th>
+              </tr>
+            </thead>
+            <tbody id="completions-list">
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">데이터를 불러오는 중...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Load QR Code and Server URL
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        
+        document.getElementById('app-url-input').value = data.url;
+        document.getElementById('qr-container').innerHTML = `<img src="${data.qrCode}" alt="Education App QR Code">`;
+      } catch (error) {
+        console.error('실시간 주소 획득 에러:', error);
+        document.getElementById('qr-container').innerHTML = `<span style="color:#ef4444; font-size:0.8rem;">QR 코드 생성 실패</span>`;
+      }
+    }
+
+    // Load Completed Users list
+    async function fetchCompletions() {
+      try {
+        const response = await fetch('/api/completions');
+        const data = await response.json();
+        const tbody = document.getElementById('completions-list');
+        tbody.innerHTML = '';
+
+        if (!data.completions || data.completions.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">아직 이수 완료한 사용자가 없습니다.</td></tr>`;
+          return;
+        }
+
+        // Show latest first
+        data.completions.reverse().forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(item.name)}</strong></td>
+            <td>${escapeHtml(item.dob)}</td>
+            <td style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(item.time)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('이수 목록 획득 에러:', error);
+        document.getElementById('completions-list').innerHTML = `<tr><td colspan="3" style="text-align: center; color: #ef4444; padding: 40px 0;">이수 목록을 가져오는 도중 오류가 발생했습니다.</td></tr>`;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Init
+    loadStatus();
+    fetchCompletions();
+    
+    // Poll updates every 10 seconds
+    setInterval(fetchCompletions, 10000);
+  </script>
+</body>
+</html>
