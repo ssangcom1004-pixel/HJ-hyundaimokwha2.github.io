@@ -47,7 +47,7 @@
           <h2>이수 완료자 명단</h2>
           <div>
             <button onclick="fetchCompletions()" class="btn btn-secondary" style="display:inline-block; width:auto; margin-right: 8px;">새로고침</button>
-            <a href="/api/download" class="btn btn-primary" style="display:inline-block; width:auto; text-decoration:none; font-size:0.85rem; padding:8px 16px; border-radius:8px;">CSV 다운로드</a>
+            <a href="/api/download" id="btn-download" class="btn btn-primary" style="display:inline-block; width:auto; text-decoration:none; font-size:0.85rem; padding:8px 16px; border-radius:8px;">CSV 다운로드</a>
           </div>
         </div>
 
@@ -57,12 +57,13 @@
               <tr>
                 <th>성명</th>
                 <th>생년월일</th>
+                <th>휴대전화</th>
                 <th>이수 일시</th>
               </tr>
             </thead>
             <tbody id="completions-list">
               <tr>
-                <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">데이터를 불러오는 중...</td>
+                <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">데이터를 불러오는 중...</td>
               </tr>
             </tbody>
           </table>
@@ -72,6 +73,22 @@
   </main>
 
   <script>
+    // Password verification before loading the page content
+    var adminPw = sessionStorage.getItem('admin_pw');
+    if (adminPw !== '1216') {
+      adminPw = prompt('관리자 비밀번호를 입력해주세요:');
+      if (adminPw === '1216') {
+        sessionStorage.setItem('admin_pw', adminPw);
+      } else {
+        alert('비밀번호가 일치하지 않습니다.');
+        window.location.href = '/';
+        throw new Error('Unauthorized');
+      }
+    }
+
+    // Set download button URL with password
+    document.getElementById('btn-download').href = `/api/download?pw=${adminPw}`;
+
     // Load QR Code and Server URL
     async function loadStatus() {
       try {
@@ -89,13 +106,13 @@
     // Load Completed Users list
     async function fetchCompletions() {
       try {
-        const response = await fetch('/api/completions');
+        const response = await fetch(`/api/completions?pw=${adminPw}`);
         const data = await response.json();
         const tbody = document.getElementById('completions-list');
         tbody.innerHTML = '';
 
         if (!data.completions || data.completions.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">아직 이수 완료한 사용자가 없습니다.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 40px 0;">아직 이수 완료한 사용자가 없습니다.</td></tr>`;
           return;
         }
 
@@ -105,13 +122,14 @@
           tr.innerHTML = `
             <td><strong>${escapeHtml(item.name)}</strong></td>
             <td>${escapeHtml(item.dob)}</td>
+            <td>${escapeHtml(item.phone)}</td>
             <td style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHtml(item.time)}</td>
           `;
           tbody.appendChild(tr);
         });
       } catch (error) {
         console.error('이수 목록 획득 에러:', error);
-        document.getElementById('completions-list').innerHTML = `<tr><td colspan="3" style="text-align: center; color: #ef4444; padding: 40px 0;">이수 목록을 가져오는 도중 오류가 발생했습니다.</td></tr>`;
+        document.getElementById('completions-list').innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444; padding: 40px 0;">이수 목록을 가져오는 도중 오류가 발생했습니다.</td></tr>`;
       }
     }
 
