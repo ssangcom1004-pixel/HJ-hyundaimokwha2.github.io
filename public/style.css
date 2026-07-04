@@ -790,3 +790,116 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+/* ===== INCIDENT VIDEOS & MODAL ===== */
+.incident-video-list {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.incident-video-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+.incident-video-card:active {
+  transform: scale(0.98);
+}
+.incident-video-card.checked {
+  border-color: var(--success-light);
+  background: linear-gradient(135deg, #f1f8f1, #fff);
+}
+.inc-video-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.inc-video-info {
+  flex: 1;
+}
+.inc-video-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.inc-video-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.inc-video-check {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  font-size: 0.85rem;
+  font-weight: 800;
+  transition: all var(--transition);
+  background: #fff;
+}
+.incident-video-card.checked .inc-video-check {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+
+.video-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.video-modal-content {
+  background: #fff;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 440px;
+  padding: 20px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+.video-modal-header {
+  margin-bottom: 15px;
+  text-align: center;
+}
+.video-modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+.modal-player {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+.video-modal-content .player-controls {
+  margin: 0;
+  border-radius: 0;
+}
+.video-modal-content .video-status-bar {
+  margin: 0;
+}
+.video-modal-content .video-status-text {
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
