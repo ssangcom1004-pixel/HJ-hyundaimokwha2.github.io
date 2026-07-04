@@ -30,10 +30,38 @@ function getLocalIPAddress() {
 const LOCAL_IP = getLocalIPAddress();
 const APP_URL = `http://${LOCAL_IP}:${PORT}`;
 
-// Initialize completions.csv if it doesn't exist
-if (!fs.existsSync(CSV_FILE_PATH)) {
-  const header = 'Name,DateOfBirth,CompletionTime\n';
+// Initialize completions.csv or migrate if it's the old format
+if (fs.existsSync(CSV_FILE_PATH)) {
+  const content = fs.readFileSync(CSV_FILE_PATH, 'utf8');
+  if (content.startsWith('Name,DateOfBirth,CompletionTime')) {
+    const lines = content.trim().split('\n');
+    const newLines = ['Name,DateOfBirth,Phone,CompletionTime'];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+      if (matches && matches.length === 3) {
+        const name = matches[0];
+        const dobOrPhone = matches[1].replace(/"/g, '');
+        const time = matches[2];
+        const dob = dobOrPhone.includes('-') ? '""' : `"${dobOrPhone}"`;
+        const phone = dobOrPhone.includes('-') ? `"${dobOrPhone}"` : '""';
+        newLines.push(`${name},${dob},${phone},${time}`);
+      }
+    }
+    fs.writeFileSync(CSV_FILE_PATH, newLines.join('\n') + '\n', 'utf8');
+  }
+} else {
+  const header = 'Name,DateOfBirth,Phone,CompletionTime\n';
   fs.writeFileSync(CSV_FILE_PATH, header, 'utf8');
+}
+
+// Authentication middleware for admin API
+function authMiddleware(req, res, next) {
+  const pw = req.query.pw || req.headers['x-admin-password'];
+  if (pw === '1216') {
+    return next();
+  }
+  res.status(401).json({ error: '인증 비밀번호가 올바르지 않습니다.' });
 }
 
 // API: Get QR Code URL and current status
@@ -53,18 +81,19 @@ app.get('/api/status', async (req, res) => {
 
 // API: Submit completion
 app.post('/api/complete', (req, res) => {
-  const { name, dob } = req.body;
+  const { name, dob, phone } = req.body;
 
-  if (!name || !dob) {
-    return res.status(400).json({ error: '이름과 생년월일을 입력해주세요.' });
+  if (!name || !dob || !phone) {
+    return res.status(400).json({ error: '이름, 생년월일, 휴대전화를 모두 입력해주세요.' });
   }
 
   // Clean data to prevent CSV injection
   const cleanName = name.replace(/,/g, '').trim();
   const cleanDob = dob.replace(/,/g, '').trim();
+  const cleanPhone = phone.replace(/,/g, '').trim();
   const timestamp = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
-  const record = `"${cleanName}","${cleanDob}","${timestamp}"\n`;
+  const record = `"${cleanName}","${cleanDob}","${cleanPhone}","${timestamp}"\n`;
 
   fs.appendFile(CSV_FILE_PATH, record, 'utf8', (err) => {
     if (err) {
@@ -76,25 +105,36 @@ app.post('/api/complete', (req, res) => {
 });
 
 // API: Get completions list
-app.get('/api/completions', (req, res) => {
+app.get('/api/completions', authMiddleware, (req, res) => {
   fs.readFile(CSV_FILE_PATH, 'utf8', (err, data) => {
     if (err) {
       return res.status(500).json({ error: '이수 목록을 불러올 수 없습니다.' });
     }
 
     const lines = data.trim().split('\n');
-    const headers = lines[0].split(',');
     const list = [];
 
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i]) continue;
       // Parse CSV line considering double quotes
       const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-      if (matches && matches.length >= 3) {
+      if (matches && matches.length >= 4) {
         list.push({
           name: matches[0].replace(/"/g, ''),
           dob: matches[1].replace(/"/g, ''),
-          time: matches[2].replace(/"/g, '')
+          phone: matches[2].replace(/"/g, ''),
+          time: matches[3].replace(/"/g, '')
+        });
+      } else if (matches && matches.length === 3) {
+        // Fallback for older format rows
+        const name = matches[0].replace(/"/g, '');
+        const dobOrPhone = matches[1].replace(/"/g, '');
+        const time = matches[2].replace(/"/g, '');
+        list.push({
+          name: name,
+          dob: dobOrPhone.includes('-') ? '' : dobOrPhone,
+          phone: dobOrPhone.includes('-') ? dobOrPhone : '',
+          time: time
         });
       }
     }
@@ -103,7 +143,7 @@ app.get('/api/completions', (req, res) => {
 });
 
 // API: Download completions.csv
-app.get('/api/download', (req, res) => {
+app.get('/api/download', authMiddleware, (req, res) => {
   if (fs.existsSync(CSV_FILE_PATH)) {
     res.download(CSV_FILE_PATH, 'education_completions.csv');
   } else {
