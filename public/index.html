@@ -87,18 +87,6 @@
       </div>
       <form id="info-form" onsubmit="submitInfo(event)">
         <div class="form-group">
-          <label for="sel-area">방문 지역 <span class="required">*</span></label>
-          <select id="sel-area">
-            <option value="">-- 선택 --</option>
-            <option value="서울">서울</option><option value="경기">경기</option><option value="인천">인천</option>
-            <option value="부산">부산</option><option value="대구">대구</option><option value="광주">광주</option>
-            <option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option>
-            <option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option>
-            <option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option>
-            <option value="경남">경남</option><option value="제주">제주</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="inp-location">방문 사업장</label>
           <input type="text" id="inp-location" value="현대목화아파트 가로주택현장" readonly class="input-fixed">
         </div>
@@ -107,23 +95,16 @@
           <input type="text" id="inp-company" placeholder="소속 회사/업체명 입력">
         </div>
         <div class="form-group">
-          <label for="sel-reason">방문 사유 <span class="required">*</span></label>
-          <select id="sel-reason">
-            <option value="">-- 선택 --</option>
-            <option value="1">협력업체 작업</option>
-            <option value="2">납품/배송</option>
-            <option value="3">점검/감리</option>
-            <option value="4">민원/방문</option>
-            <option value="5">기타</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label for="inp-visitdate">방문 일자 <span class="required">*</span></label>
           <input type="date" id="inp-visitdate">
         </div>
         <div class="form-group">
           <label for="inp-name">성명 <span class="required">*</span></label>
           <input type="text" id="inp-name" placeholder="홍길동" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="inp-dob">생년월일 <span class="required">*</span></label>
+          <input type="tel" id="inp-dob" placeholder="예: 950101 (6자리)" maxlength="6" inputmode="numeric">
         </div>
         <div class="form-group">
           <label>휴대전화 <span class="required">*</span></label>
@@ -142,9 +123,27 @@
             <label class="radio-label"><input type="radio" name="transport" value="walk" onchange="toggleCar()"><span class="radio-custom"></span>도보</label>
           </div>
         </div>
-        <div class="form-group" id="car-group" style="display:none">
-          <label for="inp-carno">차량 번호 <span class="required">*</span></label>
-          <input type="text" id="inp-carno" placeholder="12가3456">
+        <div id="car-detail-group" style="display:none">
+          <div class="form-group">
+            <label for="inp-carno">차량 번호 <span class="required">*</span></label>
+            <input type="text" id="inp-carno" placeholder="12가3456">
+          </div>
+          <div class="form-group">
+            <label for="sel-cartype">차량 종류 <span class="required">*</span></label>
+            <select id="sel-cartype" onchange="toggleCarTypeOther()">
+              <option value="">-- 선택 --</option>
+              <option value="지게차">지게차</option>
+              <option value="화물차">화물차</option>
+              <option value="덤프">덤프</option>
+              <option value="포터">포터</option>
+              <option value="승용차">승용차</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="form-group" id="car-type-other-group" style="display:none">
+            <label for="inp-cartype-other">차량 종류 직접 입력 <span class="required">*</span></label>
+            <input type="text" id="inp-cartype-other" placeholder="차량 종류 입력">
+          </div>
         </div>
         <div class="form-group">
           <label for="sel-dept">방문 대상 부서(팀) <span class="required">*</span></label>
@@ -194,18 +193,9 @@
           <p>방문하실 현장의 배치도를 확인해 주세요.</p>
         </div>
         <div class="layout-map-box">
-          <div class="layout-map-placeholder">
-            <div class="map-icon">🗺️</div>
-            <p class="map-title">현장 배치도</p>
-            <p class="map-sub">관리자가 등록한 현장 배치도가 표시됩니다.</p>
-          </div>
+          <img src="site_map.jpg" alt="현장 배치도" style="width: 100%; border-radius: 12px; display: block; border: 1px solid var(--border-color);">
         </div>
-        <div class="layout-info">
-          <div class="info-item"><span class="info-label">📍 비상 대피로</span><span class="info-val">건물 외벽 좌측 비상구 이용</span></div>
-          <div class="info-item"><span class="info-label">🚑 응급 집결지</span><span class="info-val">정문 우측 야외 주차장</span></div>
-          <div class="info-item"><span class="info-label">🧯 소화기 위치</span><span class="info-val">각 층 복도 양쪽 끝</span></div>
-        </div>
-        <button class="btn-main" onclick="showEduPanel('edu-video')">다음 (교육 영상) →</button>
+        <button class="btn-main" onclick="showEduPanel('edu-video')" style="margin-top: 20px;">다음 (교육 영상) →</button>
       </div>
     </div>
 
@@ -278,28 +268,88 @@
         </div>
         <div class="section-header">
           <div class="section-badge">사고 사례</div>
-          <h2>사고사례 확인</h2>
-          <p>각 사례를 탭하여 모두 확인해 주세요.</p>
+          <h2>사고사례 동영상 확인</h2>
+          <p>아래 4가지 사고 유형 동영상을 각각 눌러 끝까지 시청해 주세요.</p>
         </div>
-        <div id="incident-list">
-          <div class="incident-group" data-purpose="1">
-            <div class="incident-card" data-idx="0"><div class="incident-header"><div class="incident-icon">⚠️</div><div class="incident-info"><div class="incident-title">추락 사고</div><div class="incident-desc">고소작업 중 안전벨트 미착용으로 인한 추락</div></div><div class="incident-check">✓</div></div></div>
-            <div class="incident-card" data-idx="1"><div class="incident-header"><div class="incident-icon">⚡</div><div class="incident-info"><div class="incident-title">감전 사고</div><div class="incident-desc">전기 작업 중 절연장갑 미착용으로 인한 감전</div></div><div class="incident-check">✓</div></div></div>
-            <div class="incident-card" data-idx="2"><div class="incident-header"><div class="incident-icon">🏗️</div><div class="incident-info"><div class="incident-title">물체 낙하 사고</div><div class="incident-desc">상부 작업 중 공구 낙하로 인한 하부 작업자 부상</div></div><div class="incident-check">✓</div></div></div>
-          </div>
-          <div class="incident-group" data-purpose="2">
-            <div class="incident-card" data-idx="0"><div class="incident-header"><div class="incident-icon">🚛</div><div class="incident-info"><div class="incident-title">지게차 충돌 사고</div><div class="incident-desc">이동 중 지게차와 충돌로 인한 부상</div></div><div class="incident-check">✓</div></div></div>
-            <div class="incident-card" data-idx="1"><div class="incident-header"><div class="incident-icon">📦</div><div class="incident-info"><div class="incident-title">협착 사고</div><div class="incident-desc">화물 하역 중 손가락 협착으로 인한 부상</div></div><div class="incident-check">✓</div></div></div>
-          </div>
-          <div class="incident-group" data-purpose="3">
-            <div class="incident-card" data-idx="0"><div class="incident-header"><div class="incident-icon">🔍</div><div class="incident-info"><div class="incident-title">밀폐공간 질식 사고</div><div class="incident-desc">맨홀 내부 점검 중 유해가스 흡입으로 인한 사고</div></div><div class="incident-check">✓</div></div></div>
-            <div class="incident-card" data-idx="1"><div class="incident-header"><div class="incident-icon">🏚️</div><div class="incident-info"><div class="incident-title">구조물 붕괴</div><div class="incident-desc">노후 구조물 점검 중 붕괴로 인한 매몰 사고</div></div><div class="incident-check">✓</div></div></div>
-          </div>
-          <div class="incident-group" data-purpose="4">
-            <div class="incident-card" data-idx="0"><div class="incident-header"><div class="incident-icon">🚧</div><div class="incident-info"><div class="incident-title">통행로 사고</div><div class="incident-desc">지정 통행로 외 구역 이동 중 충돌 사고</div></div><div class="incident-check">✓</div></div></div>
-          </div>
+        <div class="incident-video-list">
+          <button type="button" class="incident-video-card" onclick="playIncidentVideo(1)" id="inc-card-1">
+            <div class="inc-video-icon">🎥</div>
+            <div class="inc-video-info">
+              <div class="inc-video-title">지게차 충돌 및 깔림</div>
+              <div class="inc-video-status" id="inc-status-1">미이수 (탭하여 재생)</div>
+            </div>
+            <div class="inc-video-check" id="inc-check-1">✓</div>
+          </button>
+          <button type="button" class="incident-video-card" onclick="playIncidentVideo(2)" id="inc-card-2">
+            <div class="inc-video-icon">🎥</div>
+            <div class="inc-video-info">
+              <div class="inc-video-title">지게차 보행자 사고</div>
+              <div class="inc-video-status" id="inc-status-2">미이수 (탭하여 재생)</div>
+            </div>
+            <div class="inc-video-check" id="inc-check-2">✓</div>
+          </button>
+          <button type="button" class="incident-video-card" onclick="playIncidentVideo(3)" id="inc-card-3">
+            <div class="inc-video-icon">🎥</div>
+            <div class="inc-video-info">
+              <div class="inc-video-title">하역시 끼임</div>
+              <div class="inc-video-status" id="inc-status-3">미이수 (탭하여 재생)</div>
+            </div>
+            <div class="inc-video-check" id="inc-check-3">✓</div>
+          </button>
+          <button type="button" class="incident-video-card" onclick="playIncidentVideo(4)" id="inc-card-4">
+            <div class="inc-video-icon">🎥</div>
+            <div class="inc-video-info">
+              <div class="inc-video-title">굴착기 이동중 협착</div>
+              <div class="inc-video-status" id="inc-status-4">미이수 (탭하여 재생)</div>
+            </div>
+            <div class="inc-video-check" id="inc-check-4">✓</div>
+          </button>
         </div>
-        <button class="btn-main" id="btn-incident-next" onclick="checkIncidentNext()">다음 (안전수칙 확인) →</button>
+        <button class="btn-main btn-disabled" id="btn-incident-next" onclick="checkIncidentNext()" disabled>다음 (안전수칙 확인) →</button>
+      </div>
+
+      <!-- 사고사례 비디오 플레이어 모달 -->
+      <div id="incident-video-modal" class="video-modal-overlay" style="display:none">
+        <div class="video-modal-content">
+          <div class="video-modal-header">
+            <h3 id="incident-modal-title">사고사례 동영상 시청</h3>
+          </div>
+          <div class="custom-player modal-player">
+            <video id="incident-video-el" preload="auto" playsinline webkit-playsinline style="width:100%; display:block;">
+              <source id="incident-video-source" src="" type="video/mp4">
+              브라우저가 동영상을 지원하지 않습니다.
+            </video>
+            <!-- 클릭 차단 오버레이 -->
+            <div class="player-shield" id="inc-player-shield" oncontextmenu="return false;"></div>
+            <!-- 재생 시작 오버레이 -->
+            <div class="player-start-overlay" id="inc-player-start-overlay" onclick="startIncVideo()">
+              <div class="player-play-btn">
+                <svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <p>탭하여 영상 재생</p>
+            </div>
+          </div>
+
+          <!-- 커스텀 콘트롤 -->
+          <div class="player-controls">
+            <button class="player-ctrl-btn" id="inc-player-play-pause" onclick="toggleIncPlayPause()">
+              <span id="inc-play-pause-icon">▶</span>
+              <span id="inc-play-pause-text">재생</span>
+            </button>
+            <div class="player-time-display">
+              <span id="inc-player-current">0:00</span>
+              <span class="time-sep">/</span>
+              <span id="inc-player-duration">--:--</span>
+            </div>
+            <div class="player-watch-badge" id="inc-player-watch-badge">확인 중</div>
+          </div>
+
+          <div class="video-status-bar">
+            <div class="video-status-text" id="inc-video-status-text">▶ 재생 버튼을 눌러 시청을 시작하세요</div>
+          </div>
+          
+          <button type="button" class="btn-main" id="btn-inc-close" onclick="closeIncModal()" style="margin-top: 15px; display: none;">시청 완료 후 닫기</button>
+        </div>
       </div>
     </div>
 
@@ -379,6 +429,14 @@
     var maxWatched = 0;
     var reasonNames = ['', '협력업체 작업', '납품/배송', '점검/감리', '민원/방문', '기타'];
 
+    // 사고사례 동영상 상태 관리
+    var incidentCompleted = [false, false, false, false, false]; // 1-indexed (1~4)
+    var currentIncidentIdx = 0;
+    var incMaxWatched = 0;
+    var incIsPlaying = false;
+    var incBlockSeek = true;
+    var incVideoEl = document.getElementById('incident-video-el');
+
     function goTo(id) {
       document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
       document.getElementById(id).classList.add('active');
@@ -401,35 +459,58 @@
 
     function toggleCar() {
       var checked = document.querySelector('input[name="transport"]:checked');
-      document.getElementById('car-group').style.display = (checked && checked.value === 'car') ? 'block' : 'none';
+      document.getElementById('car-detail-group').style.display = (checked && checked.value === 'car') ? 'block' : 'none';
+    }
+
+    function toggleCarTypeOther() {
+      var sel = document.getElementById('sel-cartype').value;
+      document.getElementById('car-type-other-group').style.display = (sel === '기타') ? 'block' : 'none';
     }
 
     function submitInfo(event) {
       event.preventDefault();
-      var area = document.getElementById('sel-area').value;
       var location = document.getElementById('inp-location').value.trim();
       var company = document.getElementById('inp-company').value.trim();
-      var reason = document.getElementById('sel-reason').value;
       var visitdate = document.getElementById('inp-visitdate').value;
       var name = document.getElementById('inp-name').value.trim();
+      var dob = document.getElementById('inp-dob').value.trim();
       var phone1 = document.getElementById('inp-phone1').value;
       var phone2 = document.getElementById('inp-phone2').value.trim();
       var phone3 = document.getElementById('inp-phone3').value.trim();
       var transport = document.querySelector('input[name="transport"]:checked');
       var carno = document.getElementById('inp-carno').value.trim();
+      var cartype = document.getElementById('sel-cartype').value;
+      var cartypeOther = document.getElementById('inp-cartype-other').value.trim();
       var dept = document.getElementById('sel-dept').value.trim();
 
-      if (!area) { showAlert('방문 지역을 선택해 주세요.'); return; }
       if (!company) { showAlert('소속 업체명을 입력해 주세요.'); return; }
-      if (!reason) { showAlert('방문 사유를 선택해 주세요.'); return; }
       if (!visitdate) { showAlert('방문 일자를 선택해 주세요.'); return; }
       if (!name) { showAlert('성명을 입력해 주세요.'); return; }
+      if (!dob || dob.length !== 6 || isNaN(dob)) { showAlert('생년월일 6자리를 입력해 주세요 (예: 950101).'); return; }
       if (!phone2 || !phone3) { showAlert('휴대전화 번호를 입력해 주세요.'); return; }
       if (!transport) { showAlert('차량 또는 도보를 선택해 주세요.'); return; }
-      if (transport.value === 'car' && !carno) { showAlert('차량 번호를 입력해 주세요.'); return; }
+      
+      var finalCarType = '';
+      if (transport.value === 'car') {
+        if (!carno) { showAlert('차량 번호를 입력해 주세요.'); return; }
+        if (!cartype) { showAlert('차량 종류를 선택해 주세요.'); return; }
+        if (cartype === '기타' && !cartypeOther) { showAlert('차량 종류를 직접 입력해 주세요.'); return; }
+        finalCarType = (cartype === '기타') ? cartypeOther : cartype;
+      }
       if (!dept) { showAlert('방문 대상 부서(팀)를 입력해 주세요.'); return; }
 
-      userData = { area: area, location: location, company: company, reason: reason, reasonName: reasonNames[parseInt(reason)] || reason, visitdate: visitdate, name: name, phone: phone1 + '-' + phone2 + '-' + phone3, transport: transport.value, carno: carno, dept: dept };
+      userData = { 
+        location: location, 
+        company: company, 
+        visitdate: visitdate, 
+        name: name, 
+        dob: dob, 
+        phone: phone1 + '-' + phone2 + '-' + phone3, 
+        transport: transport.value, 
+        carno: carno, 
+        cartype: finalCarType,
+        dept: dept 
+      };
 
       goTo('screen-edu');
       showEduPanel('edu-purpose');
@@ -437,17 +518,162 @@
 
     function selectPurpose(num) {
       selectedPurpose = num;
+      userData.reason = num.toString();
+      userData.reasonName = reasonNames[num] || '기타';
+      
       document.querySelectorAll('.purpose-card').forEach(function(c, i){ c.classList.toggle('selected', i + 1 === num); });
-      updateIncidentDisplay();
       showEduPanel('edu-layout');
     }
 
     function updateIncidentDisplay() {
-      document.querySelectorAll('.incident-group').forEach(function(g){
-        g.style.display = (parseInt(g.dataset.purpose) === selectedPurpose) ? 'block' : 'none';
-      });
-      document.querySelectorAll('.incident-card').forEach(function(c){ c.classList.remove('checked'); });
+      // 기존 텍스트 사고사례 관련 디스플레이 로직은 사용하지 않습니다.
     }
+
+    // ===== 사고사례 비디오 재생 컨트롤 =====
+    function playIncidentVideo(idx) {
+      currentIncidentIdx = idx;
+      incMaxWatched = 0;
+      incIsPlaying = false;
+      incBlockSeek = true;
+
+      var titles = [
+        "",
+        "지게차 충돌 및 깔림 사고사례",
+        "지게차 보행자 사고사례",
+        "하역시 끼임 사고사례",
+        "굴착기 이동중 협착 사고사례"
+      ];
+
+      document.getElementById('incident-modal-title').textContent = titles[idx];
+      var modal = document.getElementById('incident-video-modal');
+      var source = document.getElementById('incident-video-source');
+      
+      // 소스 변경 및 비디오 다시 로드
+      source.src = "incident_" + idx + ".mp4";
+      incVideoEl.load();
+
+      // 모달 표시
+      modal.style.display = 'flex';
+      document.getElementById('inc-player-start-overlay').style.display = 'flex';
+      document.getElementById('btn-inc-close').style.display = 'none';
+      
+      // 상태 바 초기화
+      var st = document.getElementById('inc-video-status-text');
+      st.textContent = '▶ 재생 버튼을 눌러 시청을 시작하세요';
+      st.className = 'video-status-text';
+      document.getElementById('inc-player-watch-badge').textContent = '확인 중';
+      document.getElementById('inc-player-watch-badge').classList.remove('done');
+    }
+
+    function startIncVideo() {
+      document.getElementById('inc-player-start-overlay').style.display = 'none';
+      incVideoEl.play();
+    }
+
+    function toggleIncPlayPause() {
+      if (incVideoEl.paused) {
+        incVideoEl.play();
+      } else {
+        incVideoEl.pause();
+      }
+    }
+
+    function closeIncModal() {
+      incVideoEl.pause();
+      document.getElementById('incident-video-modal').style.display = 'none';
+      checkAllIncidentsCompleted();
+    }
+
+    function checkAllIncidentsCompleted() {
+      var allDone = true;
+      for (var i = 1; i <= 4; i++) {
+        if (!incidentCompleted[i]) {
+          allDone = false;
+        }
+      }
+      var nextBtn = document.getElementById('btn-incident-next');
+      if (allDone) {
+        nextBtn.disabled = false;
+        nextBtn.classList.remove('btn-disabled');
+      } else {
+        nextBtn.disabled = true;
+        nextBtn.classList.add('btn-disabled');
+      }
+    }
+
+    // 사고 비디오 이벤트 리스너 설정
+    incVideoEl.addEventListener('play', function() {
+      incIsPlaying = true;
+      document.getElementById('inc-play-pause-icon').textContent = '⏸';
+      document.getElementById('inc-play-pause-text').textContent = '일시정지';
+      var st = document.getElementById('inc-video-status-text');
+      st.textContent = '▶ 재생 중... (영상을 끌지 마세요)';
+      st.className = 'video-status-text playing';
+    });
+
+    incVideoEl.addEventListener('pause', function() {
+      incIsPlaying = false;
+      document.getElementById('inc-play-pause-icon').textContent = '▶';
+      document.getElementById('inc-play-pause-text').textContent = '재생';
+      if (!incidentCompleted[currentIncidentIdx]) {
+        var st = document.getElementById('inc-video-status-text');
+        st.textContent = '⏸ 일시정지 — 재생을 눌러 계속 시청하세요';
+        st.className = 'video-status-text';
+      }
+    });
+
+    incVideoEl.addEventListener('loadedmetadata', function() {
+      document.getElementById('inc-player-duration').textContent = formatTime(incVideoEl.duration);
+    });
+
+    incVideoEl.addEventListener('timeupdate', function() {
+      var cur = incVideoEl.currentTime;
+
+      if (incBlockSeek && cur > incMaxWatched + 1.5) {
+        incVideoEl.currentTime = incMaxWatched;
+        var st = document.getElementById('inc-video-status-text');
+        st.textContent = '⛔ 건너뛰기 불가 — 영상을 순서대로 시청하세요';
+        st.className = 'video-status-text';
+        return;
+      }
+
+      if (cur >= incMaxWatched) {
+        incMaxWatched = cur;
+      }
+      document.getElementById('inc-player-current').textContent = formatTime(cur);
+    });
+
+    incVideoEl.addEventListener('ended', function() {
+      incidentCompleted[currentIncidentIdx] = true;
+      incBlockSeek = false;
+      incIsPlaying = false;
+      
+      document.getElementById('inc-play-pause-icon').textContent = '▶';
+      document.getElementById('inc-play-pause-text').textContent = '다시보기';
+      document.getElementById('inc-player-watch-badge').textContent = '✅ 완료';
+      document.getElementById('inc-player-watch-badge').classList.add('done');
+      
+      var st = document.getElementById('inc-video-status-text');
+      st.textContent = '✅ 시청 완료! 창을 닫아주세요.';
+      st.className = 'video-status-text done';
+
+      // UI 카드 업데이트
+      document.getElementById('inc-card-' + currentIncidentIdx).classList.add('checked');
+      document.getElementById('inc-status-' + currentIncidentIdx).textContent = '이수 완료';
+      document.getElementById('inc-status-' + currentIncidentIdx).style.color = 'var(--success)';
+
+      // 닫기 버튼 활성화
+      document.getElementById('btn-inc-close').style.display = 'block';
+
+      // 자동 모달 닫기
+      setTimeout(function() {
+        closeIncModal();
+      }, 1500);
+    });
+
+    incVideoEl.addEventListener('error', function() {
+      document.getElementById('inc-video-status-text').textContent = '⚠️ 영상을 불러올 수 없습니다. 관리자에게 문의하세요.';
+    });
 
     // ===== 커스텀 비디오 플레이어 =====
     var videoEl = document.getElementById('edu-video-el');
@@ -470,6 +696,7 @@
     }
 
     function formatTime(s) {
+      if (isNaN(s)) return '--:--';
       var m = Math.floor(s / 60);
       var sec = Math.floor(s % 60);
       return m + ':' + (sec < 10 ? '0' : '') + sec;
@@ -492,7 +719,7 @@
       document.getElementById('play-pause-text').textContent = '재생';
       if (!videoCompleted) {
         var st = document.getElementById('video-status-text');
-        st.textContent = '⏸ 일시정지 — 재생을 눈러 계속 시청하세요';
+        st.textContent = '⏸ 일시정지 — 재생을 눌러 계속 시청하세요';
         st.className = 'video-status-text';
       }
     });
@@ -539,7 +766,7 @@
       blockSeek = false;
       isPlaying = false;
       document.getElementById('play-pause-icon').textContent = '▶';
-      document.getElementById('play-pause-text').textContent = '쟥던보기';
+      document.getElementById('play-pause-text').textContent = '다시보기';
       document.getElementById('player-watch-badge').textContent = '✅ 완료';
       document.getElementById('player-watch-badge').classList.add('done');
       var st = document.getElementById('video-status-text');
@@ -563,24 +790,18 @@
         showAlert('영상을 끝까지 시청하셔야 합니다.\n영상이 완료되면 자동으로 버튼이 활성화됩니다.');
         return;
       }
-      updateIncidentDisplay();
       showEduPanel('edu-incident');
     }
 
-    document.querySelectorAll('.incident-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        card.classList.add('checked');
-      });
-    });
-
     function checkIncidentNext() {
-      if (!selectedPurpose) { showAlert('방문 목적을 먼저 선택해 주세요.'); return; }
-      var activeGroup = document.querySelector('.incident-group[data-purpose="' + selectedPurpose + '"]');
-      if (!activeGroup) return;
-      var cards = activeGroup.querySelectorAll('.incident-card');
-      var allOk = true;
-      cards.forEach(function(c){ if (!c.classList.contains('checked')) allOk = false; });
-      if (!allOk) { showAlert('사고사례를 모두 확인하셔야 합니다.\n각 항목을 탭하여 확인해 주세요.'); return; }
+      var allDone = true;
+      for (var i = 1; i <= 4; i++) {
+        if (!incidentCompleted[i]) allDone = false;
+      }
+      if (!allDone) {
+        showAlert('사고사례 동영상을 4가지 모두 시청하셔야 합니다.');
+        return;
+      }
       showEduPanel('edu-safety');
     }
 
@@ -619,10 +840,10 @@
         location: userData.location,
         reason: userData.reasonName,
         phone: userData.phone,
-        transport: userData.transport === 'car' ? '차량(' + userData.carno + ')' : '도보',
+        transport: userData.transport === 'car' ? '차량(' + userData.cartype + ' ' + userData.carno + ')' : '도보',
         dept: userData.dept,
         visitdate: userData.visitdate,
-        area: userData.area
+        dob: userData.dob
       };
 
       // 1. 구글 Apps Script로 데이터 전송 (no-cors 모드로 redirect 에러 우회)
@@ -644,7 +865,7 @@
         await fetch('/api/complete', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ name: userData.name, dob: userData.phone }) 
+          body: JSON.stringify({ name: userData.name, dob: userData.dob, phone: userData.phone }) 
         });
       } catch(e) {
         console.error('Local server backup error:', e);
